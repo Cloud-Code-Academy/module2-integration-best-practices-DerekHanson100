@@ -17,7 +17,17 @@ public class ExchangeRateService {
     public static ExchangeRateWrapper getLatestRates() {
         // TODO: Implement the method to make a callout to the Exchange Rate API
         
-        return null; // Replace with actual implementation
+        HttpRequest req = new HttpRequest();   
+        req.setEndpoint('callout:' + NAMED_CREDENTIAL + '/latest/' + BASE_CURRENCY);
+        req.setMethod('GET');
+
+        Http http = new Http();
+        HttpResponse res = http.send(req);  
+
+        if (res.getStatusCode() != 200) {
+            throw new CalloutException('Error: Received status code ' + res.getStatusCode());
+        } 
+        return ExchangeRateWrapper.parse(res.getBody());
     }
     
     /**
@@ -27,8 +37,9 @@ public class ExchangeRateService {
      */
     public static List<Exchange_Rate__c> processRates(ExchangeRateWrapper rateData) {
         // TODO: Implement the method to process rates and create/update records
-        
-        return null; // Replace with actual implementation
+        List<Exchange_Rate__c> exchangeRates = rateData.toExchangeRates();
+        upsert exchangeRates External_Id__c;
+        return exchangeRates; // Replace with actual implementation
     }
     
     /**
@@ -38,9 +49,11 @@ public class ExchangeRateService {
     public static List<Exchange_Rate__c> updateExchangeRates() {
         // TODO: Implement the method to get and process rates
         // 1. Call getLatestRates to retrieve the data
+        ExchangeRateWrapper rateData = getLatestRates();
         // 2. Call processRates to create/update records
+
         // 3. Return the processed records
         
-        return null; // Replace with actual implementation
+        return processRates(rateData); // Replace with actual implementation
     }
 }
